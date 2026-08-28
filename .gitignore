@@ -1,0 +1,46 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# environment variables
+.env
+.env*.local
+.env.production
+.env.staging
+
+# SQLite & Prisma Database files
+dev.db
+dev.db-journal
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo

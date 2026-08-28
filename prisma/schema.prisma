@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String      @id @default(cuid())
+  name                  String?
+  email                 String      @unique
+  password              String?
+  image                 String?
+  isPro                 Boolean     @default(false)
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  
+  // Custom business branding (Pro tier unlockable)
+  companyName           String?     @default("Studio Ledger")
+  companyEmail          String?
+  companyAddress        String?
+  companyPhone          String?
+  companyLogo           String?
+  currency              String      @default("USD")
+  taxNumber             String?
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  clients               Client[]
+  invoices              Invoice[]
+  expenses              Expense[]
+}
+
+model Client {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  company     String?
+  phone       String?
+  address     String?
+  notes       String?
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  invoices    Invoice[]
+
+  @@index([userId])
+}
+
+model Invoice {
+  id              String         @id @default(cuid())
+  invoiceNumber   String         @unique
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId        String
+  client          Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  status          String         @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE
+  issueDate       DateTime       @default(now())
+  dueDate         DateTime
+  paidAt          DateTime?
+  
+  currency        String         @default("USD")
+  taxRate         Float          @default(0.0) // percentage e.g. 10 for 10%
+  discount        Float          @default(0.0) // percentage e.g. 5 for 5%
+  
+  subtotal        Float          @default(0.0)
+  taxAmount       Float          @default(0.0)
+  discountAmount  Float          @default(0.0)
+  totalAmount     Float          @default(0.0)
+  
+  notes           String?
+  terms           String?        @default("Payment due within 14 days of issue.")
+  viewToken       String         @unique @default(cuid())
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  items           InvoiceItem[]
+
+  @@index([userId])
+  @@index([clientId])
+}
+
+model InvoiceItem {
+  id          String     @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float      @default(1.0)
+  unitPrice   Float      @default(0.0)
+  amount      Float      @default(0.0)
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([invoiceId])
+}
+
+model Expense {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?
+  amount      Float
+  category    String     @default("General") // Software, Travel, Hardware, Marketing, Office, Contractor, General
+  date        DateTime   @default(now())
+  receiptUrl  String?
+  isBillable  Boolean    @default(false)
+  clientName  String?
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+}
