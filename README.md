@@ -160,4 +160,4 @@ Ledgerly/
    ```
 2. Update `prisma/schema.prisma` provider to `postgresql`.
 3. Set `NEXTAUTH_SECRET` and `NEXTAUTH_URL`.
-4. Deploy to Vercel!
+4. Deploy to Vercel!!
